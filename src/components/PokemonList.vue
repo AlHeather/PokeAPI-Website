@@ -1,16 +1,15 @@
 <template>
     <div class="search-settings">
         <label for="limit">Limit: </label>
-        <input class="limit-input" name="limit" type="number" v-model="limit" @change="checkLimitAgainstList">
+        <input class="limit-input" name="limit" type="number" v-model="instanceLimit" @change="setLimit(instanceLimit)">
 
     </div>
 
-    <button @click="goBack">Previous</button>
+    <button @click="goBack()">Previous</button>
     <button @click="goNext">Next</button>
 
-    <div class="list">
-        <ListItem v-show="offset <= index && index < offset + limit" v-for="(pokemon, index) in pokemonList"
-            v-bind:key="index" v-bind:item="pokemon" />
+    <div class="list" v-for="(pokemon, index) in pokemonList" v-bind:key="index">
+        <ListItem v-if="offset <= index && index < offset + limit" v-bind:item="pokemon" />
     </div>
 </template>
 
@@ -22,14 +21,19 @@ export default {
     components: { ListItem, },
     data() {
         return {
-            limit: 20,
-            offset: 0,
+            instanceLimit: 20,
         }
     },
     computed: {
         pokemonList() {
             return this.$store.state.pokemonList
         },
+        limit() {
+            return this.$store.getters.getLimit;
+        },
+        offset() {
+            return this.$store.getters.getOffset;
+        }
     },
     created() {
         if (!this.$store.state.isLoaded) {
@@ -39,20 +43,25 @@ export default {
     methods: {
         updatePokemonList() {
             pokeservice.getPokemonList(this.limit, this.pokemonList.length).then((response) => {
-                this.$store.commit("SET_POKEMON_LIST", response.data);
+                if (response.status == 200) {
+                    this.$store.commit("SET_POKEMON_LIST", response.data);
+                }
             })
         },
         goNext() {
-            this.offset += this.limit;
-            if (this.offset + this.limit > this.$store.getters.getPokemonList.length) {
-                this.updatePokemonList();
-            }
+            let offset = this.offset;
+            let limit = this.limit;
+            let newOffset = offset + limit;
+            this.$store.commit("SET_OFFSET", newOffset);
+            this.checkLimitAgainstList();
         },
         goBack() {
-            if (this.offset < this.limit) {
-                this.offset = 0;
+            let offset = this.offset;
+            let limit = this.limit;
+            if (offset < limit) {
+                this.$store.commit("SET_OFFSET", 0);
             } else {
-                this.offset -= this.limit;
+                this.$store.commit("SET_OFFSET", (offset - limit));
             }
         },
         checkLimitAgainstList() {
@@ -60,7 +69,11 @@ export default {
                 this.updatePokemonList();
             }
         },
-        
+        setLimit(limit) {
+            this.$store.commit("SET_LIMIT", limit);
+            this.checkLimitAgainstList();
+        }
+
     }
 
 };

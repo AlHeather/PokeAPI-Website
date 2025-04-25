@@ -1,8 +1,7 @@
 <template>
     <div>
-        <h2 class="title">{{ pokemon.name }}</h2>
-        <PokemonImg class="header-pokemon" v-bind:frontImgUrl="pokemon.sprites.front_default"
-            v-bind:backImgUrl="pokemon.sprites.back_default" />
+        <h2 class="title">{{ pokemonName }}</h2>
+        <PokemonImg class="header-pokemon" v-bind:name="pokemonName" />
 
         <header>Abilities: </header>
         <section p v-for="ability in pokemon.abilities" v-bind:key="ability.slot">
@@ -10,6 +9,22 @@
                 <span>{{ ability.ability.name }}</span>
             </router-link>
         </section>
+
+        <br><br>
+
+        <header>Base Stats: </header>
+        <section v-for="stat in pokemon.stats" v-bind:key="stat.stat.name">
+            <span>{{ stat.stat.name }}: {{ stat.base_stat }}</span>
+        </section>
+        <footer>Base Stat Total: {{ bst }}</footer>
+
+        <br><br>
+
+        <header>Types: </header>
+        <section class=types v-for="type in pokemon.types" v-bind:key="type.slot">
+            <img class="type-indicators" v-bind:src="`/src/assets/${type.type.name}type.png`"><span>{{ type.type.name }}</span>
+        </section>
+
     </div>
 </template>
 
@@ -29,6 +44,13 @@ export default {
     computed: {
         pokemon() {
             return this.getPokemonFromStore()[0];
+        },
+        bst(){
+            let result = 0;
+            this.pokemon.stats.forEach((item) => {
+                result += item.base_stat;
+            })
+            return result;
         }
     },
 
@@ -53,3 +75,20 @@ export default {
     }
 }
 </script>
+
+<style>
+
+.type-indicators{
+    height: 25px;
+}
+
+.types{
+    display: flex;
+    align-items: center;
+}
+
+.types > span {
+    font-size: larger;
+}
+
+</style>

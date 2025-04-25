@@ -7,7 +7,10 @@ export function createStore() {
             pokemonList: [],
             pokemon: [],
             ability: [],
+            pokeImg: [],
             isLoaded: false,
+            limit: 20,
+            offset: 0,
         },
         mutations: {
             SET_POKEMON_LIST(state, list){
@@ -21,6 +24,15 @@ export function createStore() {
             },
             ADD_ABILITY(state, ability){
                 state.ability.push(ability);
+            },
+            SET_LIMIT(state, limit){
+                state.limit = limit;
+            },
+            SET_OFFSET(state, offset){
+                state.offset = offset;
+            },
+            SET_POKEIMG(state, pokeImg){
+                state.pokeImg.push(pokeImg)
             }
         },
         getters: {
@@ -32,6 +44,15 @@ export function createStore() {
             },
             getPokemon(state){
                 return state.pokemon;
+            },
+            getLimit(state){
+                return state.limit;
+            },
+            getOffset(state){
+                return state.offset;
+            },
+            getPokeImg(state){
+                return state.pokeImg;
             }
         }
     })
